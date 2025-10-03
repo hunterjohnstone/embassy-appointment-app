@@ -62,7 +62,7 @@ export default function Home() {
       donationTitle: "Support this project",
       donationDesc: "This service is completely free. If it has helped you, consider making a small donation to help cover server and development costs.",
       donationButton: "Donate now",
-      donationThanks: "Thank you for your support!"
+      donationThanks: "Thanks for trying to support, but i havent set up payment method, yet"
     }
   };
 
