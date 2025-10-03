@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-
 type Language = 'de' | 'en';
 
 export default function Home() {
