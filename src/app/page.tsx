@@ -136,10 +136,10 @@ export default function Home() {
       <header className="sticky top-0 z-50 border-b border-gray-200 bg-gradient-to-r from-yellow-50 to-white backdrop-blur-sm py-4 px-6 shadow-sm">
         <div className="max-w-4xl mx-auto flex justify-between items-center">
           <div className="flex items-center space-x-3">
-            <div className="flex space-x-1">
-              <div className="w-1 h-8 bg-black rounded-full"></div>
-              <div className="w-1 h-8 bg-red-500 rounded-full"></div>
-              <div className="w-1 h-8 bg-yellow-400 rounded-full"></div>
+            <div className="flex flex-col space-y-1">
+              <div className="w-6 h-1 bg-black rounded-full"></div>
+              <div className="w-6 h-1 bg-red-500 rounded-full"></div>
+              <div className="w-6 h-1 bg-yellow-400 rounded-full"></div>
             </div>
             <h1 className="text-xl font-semibold text-gray-900">{t.title}</h1>
           </div>
