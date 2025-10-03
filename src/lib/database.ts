@@ -1,22 +1,21 @@
-import Database from 'better-sqlite3';
-import path from 'path';
-import fs from 'fs';
+import { Pool } from 'pg';
 
-// Ensure we're in a server environment
-if (typeof window !== 'undefined') {
-  throw new Error('Database operations can only be performed on the server');
-}
+// Create a connection pool
+const pool = new Pool({
+  connectionString: process.env.POSTGRES_URL,
+  // Add these options for better connection handling
+  max: 20,
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 2000,
+});
 
-const dbPath = path.join(process.cwd(), 'emails.db');
-const db = new Database(dbPath);
+// Test the connection on startup
+pool.on('connect', () => {
+  console.log('✅ Connected to PostgreSQL database');
+});
 
-// Initialize table
-db.exec(`
-  CREATE TABLE IF NOT EXISTS emails (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    email TEXT UNIQUE NOT NULL,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-  )
-`);
+pool.on('error', (err) => {
+  console.error('❌ PostgreSQL pool error:', err);
+});
 
-export { db };
+export { pool };

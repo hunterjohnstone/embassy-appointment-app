@@ -62,30 +62,36 @@ export default function Home() {
   const t = translations[language];
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
+  e.preventDefault();
+  setLoading(true);
+  
+  try {
+    const response = await fetch('/api/submit', {  // Make sure this path is correct
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email }),
+    });
     
-    try {
-      const response = await fetch('/api/submit', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email }),
-      });
-      
-      if (response.ok) {
-        setStatus('success');
-        setEmail('');
-      } else {
-        setStatus('error');
-      }
-    } catch (error) {
+    console.log('Response status:', response.status); // Add this for debugging
+    
+    if (response.ok) {
+      const data = await response.json();
+      console.log('Success:', data);
+      setStatus('success');
+      setEmail('');
+    } else {
+      console.log('Error response:', await response.text());
       setStatus('error');
-    } finally {
-      setLoading(false);
     }
-  };
+  } catch (error) {
+    console.error('Fetch error:', error);
+    setStatus('error');
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleDonation = () => {
     // In a real app, this would open a payment modal or redirect
@@ -94,8 +100,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
-      {/* Header with German color accents */}
-      <header className="border-b border-gray-200 bg-gradient-to-r from-yellow-50 to-white py-6 px-6">
+      <header className="sticky top-0 z-50 border-b border-gray-200 bg-gradient-to-r from-yellow-50 to-white backdrop-blur-sm py-4 px-6 shadow-sm">
         <div className="max-w-4xl mx-auto flex justify-between items-center">
           <div className="flex items-center space-x-3">
             <div className="flex space-x-1">
@@ -103,7 +108,7 @@ export default function Home() {
               <div className="w-1 h-8 bg-red-500 rounded-full"></div>
               <div className="w-1 h-8 bg-yellow-400 rounded-full"></div>
             </div>
-            <h1 className="text-2xl font-semibold text-gray-900">{t.title}</h1>
+            <h1 className="text-xl font-semibold text-gray-900">{t.title}</h1>
           </div>
           
           {/* Language Switcher */}
