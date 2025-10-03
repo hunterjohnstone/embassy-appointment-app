@@ -6,20 +6,24 @@ type Language = 'de' | 'en';
 
 export default function Home() {
   const [email, setEmail] = useState('');
-  const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [status, setStatus] = useState<'idle' | 'success' | 'error' | 'unsubscribed'>('idle');
   const [loading, setLoading] = useState(false);
+  const [unsubscribeLoading, setUnsubscribeLoading] = useState(false);
   const [language, setLanguage] = useState<Language>('en');
 
   const translations = {
     de: {
       title: "Termin Finder",
       subtitle: "Deutsche Botschaft Windhoek",
-      mission: "Wir informieren Sie per E-Mail, sobald neue Termine an der Deutschen Botschaft in Windhoek verfügbar sind. Einfach E-Mail eintragen und benachrichtigt werden.",
+      mission: "Wir informieren Sie per E-Mail, sobald neue Nationalvisa-Termine an der Deutschen Botschaft in Windhoek verfügbar sind. Einfach E-Mail eintragen und benachrichtigt werden.",
       placeholder: "Ihre E-Mail-Adresse",
       button: "Benachrichtigen",
+      unsubscribeButton: "Abbestellen",
       loading: "Wird gesendet...",
+      unsubscribeLoading: "Wird abbestellt...",
       success: "Erfolg! Wir senden Ihnen eine Benachrichtigung.",
       error: "Fehler! Bitte versuchen Sie es erneut.",
+      unsubscribed: "Erfolg! Sie wurden von der Benachrichtigungsliste entfernt.",
       copyright: "Deutsche Botschaft Windhoek Termin Finder",
       howItWorksTitle: "So funktioniert es",
       howItWorksDesc: "Unser System überwacht kontinuierlich die Website der Deutschen Botschaft auf verfügbare Termine für Nationalvisa. Wir lösen automatisch die CAPTCHAs und prüfen alle paar Minuten auf neue Verfügbarkeiten.",
@@ -37,12 +41,15 @@ export default function Home() {
     en: {
       title: "Appointment Finder", 
       subtitle: "German Embassy Windhoek",
-      mission: "We'll email you as soon as new appointments become available at the German Embassy in Windhoek. Just enter your email and get notified.",
+      mission: "We'll email you as soon as new National Visa appointments become available at the German Embassy in Windhoek. Just enter your email and get notified.",
       placeholder: "Your email address",
       button: "Get Notified",
+      unsubscribeButton: "Unsubscribe",
       loading: "Sending...",
+      unsubscribeLoading: "Unsubscribing...",
       success: "Success! We'll send you a notification.",
       error: "Error! Please try again.",
+      unsubscribed: "Success! You have been removed from the notification list.",
       copyright: "German Embassy Windhoek Appointment Finder",
       howItWorksTitle: "How it works",
       howItWorksDesc: "Our system continuously monitors the German Embassy website for available National Visa appointments. We automatically solve CAPTCHAs and check for new availability every few minutes.",
@@ -62,39 +69,65 @@ export default function Home() {
   const t = translations[language];
 
   const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  setLoading(true);
-  
-  try {
-    const response = await fetch('/api/submit', {  // Make sure this path is correct
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email }),
-    });
+    e.preventDefault();
+    setLoading(true);
     
-    console.log('Response status:', response.status); // Add this for debugging
-    
-    if (response.ok) {
-      const data = await response.json();
-      console.log('Success:', data);
-      setStatus('success');
-      setEmail('');
-    } else {
-      console.log('Error response:', await response.text());
+    try {
+      const response = await fetch('/api/submit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
+      
+      if (response.ok) {
+        setStatus('success');
+        setEmail('');
+      } else {
+        setStatus('error');
+      }
+    } catch (error) {
       setStatus('error');
+      console.log(error);
+    } finally {
+      setLoading(false);
     }
-  } catch (error) {
-    console.error('Fetch error:', error);
-    setStatus('error');
-  } finally {
-    setLoading(false);
-  }
-};
+  };
+
+  const handleUnsubscribe = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email || !email.includes('@')) {
+      setStatus('error');
+      return;
+    }
+
+    setUnsubscribeLoading(true);
+    
+    try {
+      const response = await fetch('/api/unsubscribe', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
+      
+      if (response.ok) {
+        setStatus('unsubscribed');
+        setEmail('');
+      } else {
+        setStatus('error');
+      }
+    } catch (error) {
+      setStatus('error');
+      console.log(error);
+    } finally {
+      setUnsubscribeLoading(false);
+    }
+  };
 
   const handleDonation = () => {
-    // In a real app, this would open a payment modal or redirect
     alert(t.donationThanks);
   };
 
@@ -179,6 +212,17 @@ export default function Home() {
               </div>
             )}
 
+            {status === 'unsubscribed' && (
+              <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
+                <div className="flex items-center justify-center space-x-2 text-green-800">
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                  <p className="font-medium text-sm">{t.unsubscribed}</p>
+                </div>
+              </div>
+            )}
+
             {/* Email Form */}
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
@@ -189,16 +233,29 @@ export default function Home() {
                   required
                   placeholder={t.placeholder}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all placeholder-gray-400 text-gray-900"
-                  disabled={loading}
+                  disabled={loading || unsubscribeLoading}
                 />
               </div>
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full bg-gradient-to-r from-red-600 to-red-700 text-white py-3 px-4 rounded-lg font-medium hover:from-red-700 hover:to-red-800 focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed shadow-sm"
-              >
-                {loading ? t.loading : t.button}
-              </button>
+              
+              {/* Button Group */}
+              <div className="flex space-x-4">
+                <button
+                  type="submit"
+                  disabled={loading || unsubscribeLoading}
+                  className="flex-1 bg-gradient-to-r from-red-600 to-red-700 text-white py-3 px-4 rounded-lg font-medium hover:from-red-700 hover:to-red-800 focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed shadow-sm"
+                >
+                  {loading ? t.loading : t.button}
+                </button>
+                
+                <button
+                  type="button"
+                  onClick={handleUnsubscribe}
+                  disabled={loading || unsubscribeLoading || !email}
+                  className="px-6 bg-gradient-to-r from-gray-600 to-gray-700 text-white py-3 rounded-lg font-medium hover:from-gray-700 hover:to-gray-800 focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-all disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed shadow-sm"
+                >
+                  {unsubscribeLoading ? t.unsubscribeLoading : t.unsubscribeButton}
+                </button>
+              </div>
             </form>
 
             {/* Trust Indicators */}
@@ -295,7 +352,7 @@ export default function Home() {
       {/* Footer */}
       <footer className="border-t border-gray-200 bg-gradient-to-r from-gray-50 to-white py-6 px-6">
         <div className="max-w-4xl mx-auto text-center">
-          <p className="text-gray-600 text-sm">{t.copyright} © {new Date().getFullYear()}</p>
+          <p className="text-gray-600 text-sm">{t.copyright} @ {new Date().getFullYear()}</p>
         </div>
       </footer>
     </div>
