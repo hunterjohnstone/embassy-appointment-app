@@ -13,7 +13,7 @@ export default function Home() {
   const translations = {
     de: {
       title: "Termin Finder",
-      subtitle: "Deutsche Botschaft Windhoek",
+      subtitle: "Deutsche Botschaft Windhoek (Nationale Visa)",
       mission: "Wir informieren Sie per E-Mail, sobald neue Termine an der Deutschen Botschaft in Windhoek verfügbar sind. Einfach E-Mail eintragen und benachrichtigt werden.",
       placeholder: "Ihre E-Mail-Adresse",
       button: "Benachrichtigen",
@@ -24,7 +24,7 @@ export default function Home() {
     },
     en: {
       title: "Appointment Finder", 
-      subtitle: "German Embassy Windhoek",
+      subtitle: "German Embassy Windhoek (National Visa)",
       mission: "We'll email you as soon as new appointments become available at the German Embassy in Windhoek. Just enter your email and get notified.",
       placeholder: "Your email address",
       button: "Get Notified",
@@ -191,7 +191,7 @@ export default function Home() {
       {/* Footer with German color accent */}
       <footer className="border-t border-gray-200 bg-gradient-to-r from-gray-50 to-white py-6 px-6">
         <div className="max-w-4xl mx-auto text-center">
-          <p className="text-gray-600 text-sm">{t.copyright} © {new Date().getFullYear()}</p>
+          <p className="text-gray-600 text-sm">{t.copyright} @ {new Date().getFullYear()}</p>
         </div>
       </footer>
     </div>
