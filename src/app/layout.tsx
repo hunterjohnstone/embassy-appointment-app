@@ -4,9 +4,13 @@ import './globals.css';
 
 const inter = Inter({ subsets: ['latin'] });
 
+
 export const metadata: Metadata = {
-  title: 'Embassy Appointment Finder',
-  description: 'Get notified when German embassy appointments become available',
+  title: 'German Embassy Appointment Finder',
+  description: 'Get notified when German embassy National Visa appointments become available in Windhoek',
+  icons: {
+    icon: '/icon.svg',
+  },
 };
 
 export default function RootLayout({

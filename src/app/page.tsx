@@ -353,6 +353,7 @@ export default function Home() {
       <footer className="border-t border-gray-200 bg-gradient-to-r from-gray-50 to-white py-6 px-6">
         <div className="max-w-4xl mx-auto text-center">
           <p className="text-gray-600 text-sm">{t.copyright} @ {new Date().getFullYear()}</p>
+          <p className="text-gray-600 text-sm">E: hunterjohnst1@gmail.com</p>
         </div>
       </footer>
     </div>
