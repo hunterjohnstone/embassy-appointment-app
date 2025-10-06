@@ -2,6 +2,7 @@
 import { NextResponse } from 'next/server';
 import { pool } from '@/lib/database';
 
+// #TODO Lock this down 
 export async function GET(request: Request) {
   const client = await pool.connect();
   
