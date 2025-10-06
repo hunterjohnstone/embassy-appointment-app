@@ -21,7 +21,7 @@ function HomeContent() {
       heroTitle: "Seien Sie der Erste",
       heroTitle2: "der informiert wird",
       heroTitleHighlight: "über freie Termine",
-      heroSubtitle: "Für Nationalvisa-Termine an der Deutschen Botschaft in Windhoek",
+      heroSubtitle: "Für Nationalvisa-Termine an der Deutschen Botschaft in Istanbul",
       mission: "Wählen Sie Ihren Benachrichtigungsplan",
       placeholder: "Ihre E-Mail-Adresse",
       button: "Jetzt starten",
@@ -31,7 +31,7 @@ function HomeContent() {
       success: "Erfolg! Wir senden Ihnen eine Benachrichtigung.",
       error: "Fehler! Bitte versuchen Sie es erneut.",
       unsubscribed: "Erfolg! Sie wurden von der Benachrichtigungsliste entfernt.",
-      copyright: "Deutsche Botschaft Windhoek Termin Finder",
+      copyright: "Deutsche Botschaft Istanbul Termin Finder",
       
       // Tier translations
       freeTier: "Kostenlos",
@@ -57,7 +57,7 @@ function HomeContent() {
       successRate: "98% unserer Premium-Nutzer buchen ihren Termin innerhalb von 24 Stunden",
       
       howItWorksTitle: "So funktioniert es",
-      howItWorksDesc: "Unser System überwacht kontinuierlich die Website der Deutschen Botschaft auf verfügbare Termine für Nationalvisa.",
+      howItWorksDesc: "Unser System überwacht kontinuierlich die Website der Deutschen Botschaft in Istanbul auf verfügbare Termine für Nationalvisa.",
       features: [
         "Automatische Überwachung der Botschafts-Website",
         "CAPTCHA-Erkennung und -Lösung",
@@ -71,10 +71,10 @@ function HomeContent() {
     },
     en: {
       title: "Appointment Finder", 
-      heroTitle: "Windhoek",
+      heroTitle: "Istanbul",
       heroTitle2: "Appointment",
       heroTitleHighlight: "Notifier",
-      heroSubtitle: "For National Visa appointments at the German Embassy in Windhoek",
+      heroSubtitle: "For National Document Attestation Appointments at the German Embassy in Istanbul",
       mission: "Choose your notification plan",
       placeholder: "Your email address",
       button: "Get Started",
@@ -84,13 +84,13 @@ function HomeContent() {
       success: "Success! We'll send you a notification.",
       error: "Error! Please try again.",
       unsubscribed: "Success! You have been removed from the notification list.",
-      copyright: "German Embassy Windhoek Appointment Finder",
+      copyright: "German Embassy Istanbul Appointment Finder",
       
       // Tier translations
-      freeTier: "Free",
+      freeTier: "Basic",
       paidTier: "Premium",
       freePrice: "Free",
-      paidPrice: "$5 one-time",
+      paidPrice: "$5",
       freeDescription: "Basic notifications",
       paidDescription: "Instant notifications",
       freeFeatures: [
@@ -99,19 +99,17 @@ function HomeContent() {
         "Free forever"
       ],
       paidFeatures: [
+        "One-time payment",
         "Instant notifications",
         "Priority in the queue",
-        "No delays",
         "Faster appointment booking guaranteed"
-        // "✅ 100% success guarantee",
-        // "🛡️ Exclusive support"
       ],
       popularBadge: "POPULAR",
       guaranteedText: "Faster appointment booking guaranteed",
       successRate: "98% of our premium users book their appointment within 24 hours",
       
       howItWorksTitle: "How it works",
-      howItWorksDesc: "Our system continuously monitors the German Embassy website for available National Visa appointments.",
+      howItWorksDesc: "Our system continuously monitors the German Embassy in Istanbul website for available National Visa appointments.",
       features: [
         "Automatic embassy website monitoring",
         "CAPTCHA recognition and solving",
@@ -145,7 +143,7 @@ function HomeContent() {
         body: JSON.stringify({ 
           email, 
           tier: selectedTier,
-          location: 'windhoek'
+          location: 'istanbul'  // Changed to istanbul
         }),
       });
       
@@ -223,10 +221,20 @@ function HomeContent() {
                     {t.heroSubtitle}
                 </p>
                 </div>
+
+
+                {/* Donation Section */}
+
             </div>
+
             {/* Right Column - Tier Selection (2/3 width) */}
             <div className="xl:col-span-2">
               <div className="bg-white rounded-2xl p-8 border border-gray-200">
+                {/* <div className="text-center mb-8">
+                  <h2 className="text-3xl font-bold text-gray-900 mb-2">{t.mission}</h2>
+                  <p className="text-gray-600">Choose the plan that works best for you</p>
+                </div> */}
+
                 {/* Tier Cards - Horizontal Layout */}
                 <div className="grid lg:grid-cols-2 gap-8 mb-8">
                   {/* Free Tier */}
@@ -240,7 +248,7 @@ function HomeContent() {
                   >
                     <div className="text-center space-y-6 h-full flex flex-col">
                       <div className="flex-1">
-                        {/* <h3 className="text-2xl font-bold text-gray-900">{t.freeTier}</h3> */}
+                        <h3 className="text-2xl font-bold text-gray-900">{t.freeTier}</h3>
                         <div className="mt-2 flex items-baseline justify-center">
                           <span className="text-3xl font-bold text-gray-900">{t.freePrice}</span>
                         </div>
@@ -280,9 +288,9 @@ function HomeContent() {
                     
                     <div className="text-center space-y-6 h-full flex flex-col">
                       <div className="flex-1">
-                        {/* <h3 className="text-2xl font-bold text-gray-900">{t.paidTier}</h3> */}
+                        <h3 className="text-2xl font-bold text-gray-900">{t.paidTier}</h3>
                         <div className="mt-2 flex items-baseline justify-center">
-                          <span className="text-3xl font-bold text-gray-900">{t.paidTier}</span>
+                          <span className="text-3xl font-bold text-gray-900">{t.paidPrice}</span>
                         </div>
                         <p className="mt-2 text-gray-600">{t.paidDescription}</p>
                       </div>

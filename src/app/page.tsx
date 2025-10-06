@@ -356,11 +356,11 @@ export default function HomePage({ searchParams }: PageProps) {
           </div>
 
           {/* Trust Indicator */}
-          <div className="text-center">
+          {/* <div className="text-center">
             <p className="text-gray-500 text-sm uppercase tracking-wider">
               {t.trustedBy}
             </p>
-          </div>
+          </div> */}
         </div>
       </main>
 
