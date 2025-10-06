@@ -1,10 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { Suspense, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Header from '../components/header';
 
-export default function Home() {
+function HomeContent() {
   const searchParams = useSearchParams();
   const [email, setEmail] = useState('');
   const [selectedTier, setSelectedTier] = useState<'free' | 'paid'>('free');
@@ -193,10 +193,6 @@ export default function Home() {
     } finally {
       setUnsubscribeLoading(false);
     }
-  };
-
-  const handleDonation = () => {
-    alert(t.donationThanks);
   };
 
   return (
@@ -419,5 +415,13 @@ export default function Home() {
         </div>
       </footer>
     </div>
+  );
+}
+
+export default function Home() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <HomeContent />
+    </Suspense>
   );
 }
