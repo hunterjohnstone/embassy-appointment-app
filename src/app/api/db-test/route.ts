@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from 'next/server';
 import { pool } from '@/lib/database';
-import Error from 'next/error';
 
 export async function GET() {
   const client = await pool.connect();

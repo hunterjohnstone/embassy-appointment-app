@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { Suspense, useState } from 'react';
 import Header from '../components/header';
+import Link from 'next/link';
 
-export default function UnsubscribePage() {
+function UnsubscribePageContent() {
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [loading, setLoading] = useState(false);
@@ -109,12 +110,12 @@ export default function UnsubscribePage() {
 
           <p className="text-gray-500 text-sm">
             Changed your mind?{' '}
-            <a
+            <Link
               href="/"
               className="text-red-600 hover:text-red-700 font-medium underline underline-offset-2"
             >
               Go back to home page
-            </a>
+            </Link>
           </p>
         </div>
       </main>
@@ -128,5 +129,13 @@ export default function UnsubscribePage() {
         </div>
       </footer>
     </div>
+  );
+}
+
+export default function UnsubscribePage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <UnsubscribePageContent />
+    </Suspense>
   );
 }
