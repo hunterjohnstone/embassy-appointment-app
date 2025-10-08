@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 // /api/stripe-webhook/route.ts - PRIVATE endpoint  
 
 import { NextResponse } from 'next/server';

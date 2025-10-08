@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 // /api/create-checkout/route.ts
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
