@@ -8,8 +8,9 @@ export interface PageProps {
   };
 }
 
-export default function HomePage({ searchParams }: PageProps) {
-  const currentLanguage = (searchParams.lang === 'de' ? 'de' : 'en') as 'de' | 'en';
+export default async function HomePage({ searchParams }: PageProps) {
+  const resolvedSearchParams = await searchParams;
+  const currentLanguage = (resolvedSearchParams.lang === 'de' ? 'de' : 'en') as 'de' | 'en';
   const translations = {
     en: {
       hero: {

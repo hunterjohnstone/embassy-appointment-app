@@ -99,7 +99,7 @@ function HomeContent() {
         "Free forever"
       ],
       paidFeatures: [
-        "One-time payment",
+        "$5 One-time payment",
         "Instant notifications",
         "Priority in the queue",
         "Faster appointment booking guaranteed"

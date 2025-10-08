@@ -11,6 +11,7 @@ function HomeContent() {
   const [status, setStatus] = useState<'idle' | 'success' | 'error' | 'unsubscribed'>('idle');
   const [loading, setLoading] = useState(false);
   const [unsubscribeLoading, setUnsubscribeLoading] = useState(false);
+  const [stripeLoading, setStripeLoading ] = useState(false);
 
   const langParam = searchParams.get('lang');
   const language = (langParam === 'de' ? 'de' : 'en') as 'de' | 'en';
@@ -99,12 +100,10 @@ function HomeContent() {
         "Free forever"
       ],
       paidFeatures: [
+        "$5 One-time payment",
         "Instant notifications",
         "Priority in the queue",
-        "No delays",
         "Faster appointment booking guaranteed"
-        // "✅ 100% success guarantee",
-        // "🛡️ Exclusive support"
       ],
       popularBadge: "POPULAR",
       guaranteedText: "Faster appointment booking guaranteed",
@@ -127,39 +126,74 @@ function HomeContent() {
 
   const t = translations[language];
 
-  const handleSubmit = async (e: React.FormEvent) => {
+const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !email.includes('@')) {
       setStatus('error');
       return;
     }
 
-    setLoading(true);
-    
-    try {
-      const response = await fetch('/api/submit', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ 
-          email, 
-          tier: selectedTier,
-          location: 'windhoek'
-        }),
-      });
+    // FREE TIER: Direct submission to your API
+    if (selectedTier === 'free') {
+      setLoading(true);
       
-      if (response.ok) {
-        setStatus('success');
-        setEmail('');
-      } else {
+      try {
+        const response = await fetch('/api/submit', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ 
+            email, 
+            tier: 'free', // Force free tier
+            location: 'windhoek'
+          }),
+        });
+        
+        if (response.ok) {
+          setStatus('success');
+          setEmail('');
+        } else {
+          setStatus('error');
+        }
+      } catch (error) {
         setStatus('error');
+        console.log(error);
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      setStatus('error');
-      console.log(error);
-    } finally {
-      setLoading(false);
+    } 
+    // PAID TIER: Redirect to Stripe Checkout
+    else if (selectedTier === 'paid') {
+      setStripeLoading(true);
+      
+      try {
+        // Create Stripe Checkout Session
+        const response = await fetch('/api/create-checkout', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ 
+            email,
+            location: 'windhoek'
+          }),
+        });
+        
+        const session = await response.json();
+        
+        if (session.url) {
+          // Redirect to Stripe Checkout
+          window.location.href = session.url;
+        } else {
+          setStatus('error');
+        }
+      } catch (error) {
+        setStatus('error');
+        console.log(error);
+      } finally {
+        setStripeLoading(false);
+      }
     }
   };
 
@@ -331,25 +365,27 @@ function HomeContent() {
                         required
                         placeholder={t.placeholder}
                         className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all placeholder-gray-400 text-gray-900"
-                        disabled={loading || unsubscribeLoading}
+                        disabled={loading || unsubscribeLoading || stripeLoading}
                       />
                     </div>
                     
                     <button
                       type="submit"
-                      disabled={loading || unsubscribeLoading}
+                      disabled={loading || unsubscribeLoading || stripeLoading}
                       className={`w-full py-3 px-6 rounded-lg font-bold text-white transition-all shadow-lg ${
                         selectedTier === 'paid' 
                           ? 'bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800' 
                           : 'bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700'
                       } disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed`}
                     >
-                      {loading ? t.loading : `${t.button} - ${selectedTier === 'paid' ? t.paidPrice : t.freePrice}`}
+                      {loading && selectedTier === 'free' ? t.loading : 
+                       stripeLoading && selectedTier === 'paid' ? 'Redirecting to payment...' : 
+                       `${t.button} - ${selectedTier === 'paid' ? t.paidPrice : t.freePrice}`}
                     </button>
                   </div>
 
                   {/* Status Messages */}
-                  {status === 'success' && (
+                  {status === 'success' && selectedTier === 'free' && (
                     <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-center">
                       <div className="flex items-center justify-center space-x-2 text-yellow-800">
                         <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">

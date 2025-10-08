@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+// api/submit/route.ts
 
 import { NextResponse } from 'next/server';
 import { pool } from '@/lib/database';
-// api/submit/route.ts
+
 export async function POST(request: Request) {
   const client = await pool.connect();
   
@@ -11,6 +12,14 @@ export async function POST(request: Request) {
     
     if (!email || !email.includes('@')) {
       return NextResponse.json({ error: 'Invalid email' }, { status: 400 });
+    }
+
+    // SECURITY: Prevent users from setting themselves to 'paid' without payment
+    if (tier === 'paid') {
+      return NextResponse.json(
+        { error: 'Cannot self-assign paid tier. Use Stripe checkout.' },
+        { status: 403 }
+      );
     }
 
     await client.query(`
@@ -23,19 +32,26 @@ export async function POST(request: Request) {
       );
     `);
     
+    // Only allow free tier updates from public endpoint
     const result = await client.query(
       `INSERT INTO emails (email, location, tier) 
        VALUES ($1, $2, $3) 
        ON CONFLICT (email) 
-       DO UPDATE SET location = $2, tier = $3 
+       DO UPDATE SET 
+         location = EXCLUDED.location,
+         tier = CASE 
+           WHEN emails.tier = 'paid' THEN 'paid'  // Keep existing paid tier
+           ELSE EXCLUDED.tier  // Only allow free tier changes
+         END
        RETURNING *`,
-      [email, location, tier]
+      [email, location, 'free']
     );
     
     return NextResponse.json({ 
       success: true, 
       message: 'Email submitted successfully',
-      inserted: result.rows.length > 0
+      inserted: result.rows.length > 0,
+      currentTier: result.rows[0].tier
     });
     
   } catch (error: any) {
