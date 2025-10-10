@@ -19,7 +19,7 @@ export async function fetchClientSecret() {
       }
     ],
     mode: 'payment',
-    return_url: `${origin}/return`,
+    return_url: `${origin}/success`,
   })
 
   return session.client_secret
