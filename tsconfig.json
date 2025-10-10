@@ -34,7 +34,7 @@
     "next-env.d.ts",
     "types/**/*.d.ts",
     ".next/types/**/*.ts"
-  ],
+, "src/app/components/checkout.jsx"  ],
   "exclude": [
     "node_modules"
   ]

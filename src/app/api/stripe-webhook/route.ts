@@ -1,6 +1,5 @@
+// app/api/webhook/route.ts
 /* eslint-disable @typescript-eslint/no-explicit-any */
-
-// /api/stripe-webhook/route.ts - PRIVATE endpoint  
 
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
@@ -14,26 +13,49 @@ export async function POST(request: Request) {
   const client = await pool.connect();
   
   try {
-    // Stripe webhook verification (not API key)
+    console.log('🔔 Webhook received');
+    
     const sig = request.headers.get('stripe-signature');
     const body = await request.text();
     
+    console.log('Webhook body length:', body.length);
+    console.log('Stripe signature present:', !!sig);
+    
+    if (!sig) {
+      console.error('❌ No stripe-signature header');
+      return NextResponse.json({ error: 'No signature' }, { status: 400 });
+    }
+
+    if (!process.env.STRIPE_WEBHOOK_SECRET) {
+      console.error('❌ STRIPE_WEBHOOK_SECRET missing');
+      return NextResponse.json({ error: 'Webhook secret missing' }, { status: 500 });
+    }
+
     const event = stripe.webhooks.constructEvent(
       body, 
-      sig!, 
-      process.env.STRIPE_WEBHOOK_SECRET!
+      sig, 
+      process.env.STRIPE_WEBHOOK_SECRET
     );
+
+    console.log('✅ Webhook verified, event type:', event.type);
 
     if (event.type === 'checkout.session.completed') {
       const session = event.data.object;
       const email = session.customer_details?.email;
       
+      console.log('🛒 Checkout session completed:', {
+        sessionId: session.id,
+        email: email,
+        metadata: session.metadata
+      });
+      
       if (!email) {
+        console.error('❌ No email found in session');
         throw new Error('No email found in session');
       }
 
       // SECURE: Upgrade to paid tier
-      await client.query(
+      const result = await client.query(
         `INSERT INTO emails (email, location, tier) 
          VALUES ($1, $2, 'paid')
          ON CONFLICT (email) 
@@ -41,13 +63,15 @@ export async function POST(request: Request) {
         [email, session.metadata?.location || 'windhoek']
       );
       
-      console.log(`✅ Upgraded ${email} to paid tier via Stripe webhook`);
+      console.log(`✅ Upgraded ${email} to paid tier via Stripe webhook, rows affected:`, result.rowCount);
+    } else {
+      console.log('ℹ️ Other event type:', event.type);
     }
     
     return NextResponse.json({ received: true });
     
   } catch (error: any) {
-    console.error('Webhook error:', error);
+    console.error('❌ Webhook error:', error);
     return NextResponse.json({ error: 'Webhook failed' }, { status: 400 });
   } finally {
     client.release();

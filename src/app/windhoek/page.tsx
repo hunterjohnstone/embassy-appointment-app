@@ -163,13 +163,13 @@ const handleSubmit = async (e: React.FormEvent) => {
         setLoading(false);
       }
     } 
-    // PAID TIER: Redirect to Stripe Checkout
-    else if (selectedTier === 'paid') {
+      // PAID TIER: Redirect to Stripe Checkout
+      else if (selectedTier === 'paid') {
       setStripeLoading(true);
       
       try {
         // Create Stripe Checkout Session
-        const response = await fetch('/api/create-checkout', {
+        const response = await fetch('/api/stripe-checkout', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -180,11 +180,11 @@ const handleSubmit = async (e: React.FormEvent) => {
           }),
         });
         
-        const session = await response.json();
+        const data = await response.json();
         
-        if (session.url) {
+        if (data.url) {
           // Redirect to Stripe Checkout
-          window.location.href = session.url;
+          window.location.href = data.url;
         } else {
           setStatus('error');
         }
@@ -329,7 +329,6 @@ const handleSubmit = async (e: React.FormEvent) => {
                           </li>
                         ))}
                       </ul>
-                      
                       <div className={`w-6 h-6 rounded-full border-2 mx-auto ${
                         selectedTier === 'paid' ? 'bg-red-500 border-red-500' : 'border-gray-300'
                       }`}></div>

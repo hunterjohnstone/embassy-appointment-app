@@ -32,20 +32,19 @@ export async function POST(request: Request) {
       );
     `);
     
-    // Only allow free tier updates from public endpoint
-    const result = await client.query(
-      `INSERT INTO emails (email, location, tier) 
-       VALUES ($1, $2, $3) 
-       ON CONFLICT (email) 
-       DO UPDATE SET 
-         location = EXCLUDED.location,
-         tier = CASE 
-           WHEN emails.tier = 'paid' THEN 'paid'  // Keep existing paid tier
-           ELSE EXCLUDED.tier  // Only allow free tier changes
-         END
-       RETURNING *`,
-      [email, location, 'free']
-    );
+const result = await client.query(
+  `INSERT INTO emails (email, location, tier) 
+   VALUES ($1, $2, $3) 
+   ON CONFLICT (email)  -- Conflict on email unique constraint
+   DO UPDATE SET 
+     location = EXCLUDED.location,
+     tier = CASE 
+       WHEN emails.tier = 'paid' THEN 'paid'  -- Keep existing paid tier
+       ELSE EXCLUDED.tier  -- Only allow free tier changes
+     END
+   RETURNING *`,
+  [email, location, 'free']
+);
     
     return NextResponse.json({ 
       success: true, 

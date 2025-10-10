@@ -9,9 +9,11 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@stripe/react-stripe-js": "^5.2.0",
+    "@stripe/stripe-js": "^8.0.0",
     "@vercel/postgres": "^0.10.0",
     "better-sqlite3": "^12.4.1",
-    "next": "15.5.4",
+    "next": "^15.5.4",
     "pg": "^8.16.3",
     "react": "19.1.0",
     "react-dom": "19.1.0",
