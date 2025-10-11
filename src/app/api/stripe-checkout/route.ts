@@ -25,7 +25,7 @@ export async function POST(request: Request) {
               name: 'Instant Appointment Alert',
               description: `Instant notifications for ${location} embassy appointments`,
             },
-            unit_amount: 50,
+            unit_amount: 1499, //$14.99 USD
           },
           quantity: 1,
         },
