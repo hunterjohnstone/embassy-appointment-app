@@ -90,9 +90,9 @@ function HomeContent() {
       
       // Tier translations
       freeTier: "Basic",
-      paidTier: "$4.99",
+      paidTier: "$14.99",
       freePrice: "Free",
-      paidPrice: "Checkout ($4.99)",
+      paidPrice: "Checkout ($14.99)",
       freeDescription: "Basic notifications",
       paidDescription: "Instant notifications",
       freeFeatures: [
