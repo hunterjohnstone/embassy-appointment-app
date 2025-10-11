@@ -20,7 +20,7 @@ export default function CheckoutPage() {
       fetchClientSecret(premiumEmail);
     } else {
       // No email found, redirect back
-      window.location.href = '/windhoek';
+      window.location.href = '/';
     }
   }, []);
 
@@ -92,7 +92,7 @@ export default function CheckoutPage() {
         <h1 className="text-2xl font-bold mb-4">Checkout Error</h1>
         <p className="text-gray-600 mb-4">Unable to load checkout. Please try again.</p>
         <button 
-          onClick={() => window.location.href = '/windhoek'}
+          onClick={() => window.location.href = '/'}
           className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700"
         >
           Return to Home

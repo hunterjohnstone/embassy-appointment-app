@@ -7,7 +7,7 @@ import './globals.css';
 
 export const metadata: Metadata = {
   title: 'German Embassy Appointment Finder',
-  description: 'Get notified when German embassy National Visa appointments become available in Windhoek',
+  description: 'Get notified whe your local German embassy has available appointments',
   icons: {
     icon: [
       { url: '/icon.svg', type: 'image/svg+xml' },

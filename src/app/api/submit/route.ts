@@ -5,7 +5,7 @@ import { NextResponse } from 'next/server';
 import { pool } from '@/lib/database';
 
 // Define valid locations
-const VALID_LOCATIONS = ['newdelhi', 'istanbul', 'cairo'];
+const VALID_LOCATIONS = ['newdelhi', 'istanbul', 'cairo', "accra"];
 
 export async function POST(request: Request) {
   const client = await pool.connect();
