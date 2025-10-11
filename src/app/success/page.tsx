@@ -18,12 +18,12 @@ export default function SuccessPage() {
           </svg>
         </div>
         <h1 className="text-3xl font-bold text-gray-900 mb-4">Payment Successful!</h1>
-        <p className="text-gray-600 mb-8">You&apos;ve been upgraded to Premium tier. You&apos;ll receive instant notifications.</p>
+        <p className="text-gray-600 mb-8">You&apos;ve been added to the Premium tier. You&apos;ll receive instant notifications whenever appointments are made available.</p>
         <Link 
-          href="/windhoek"
+          href="/"
           className="bg-red-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-red-700 transition-colors"
         >
-          Return to Windhoek
+          Return to Main Page
         </Link>
       </div>
     </div>

@@ -3,6 +3,7 @@
 import React, { Suspense, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Header from '../components/header';
+import Footer from '../components/footer';
 
 function HomeContent() {
   const searchParams = useSearchParams();
@@ -11,6 +12,8 @@ function HomeContent() {
   const [status, setStatus] = useState<'idle' | 'success' | 'error' | 'unsubscribed'>('idle');
   const [loading, setLoading] = useState(false);
   const [unsubscribeLoading, setUnsubscribeLoading] = useState(false);
+  const [stripeLoading, setStripeLoading ] = useState(false);
+  
 
   const langParam = searchParams.get('lang');
   const language = (langParam === 'de' ? 'de' : 'en') as 'de' | 'en';
@@ -88,21 +91,21 @@ function HomeContent() {
       
       // Tier translations
       freeTier: "Basic",
-      paidTier: "Premium",
+      paidTier: "$4.99",
       freePrice: "Free",
-      paidPrice: "$5",
+      paidPrice: "Checkout ($4.99)",
       freeDescription: "Basic notifications",
       paidDescription: "Instant notifications",
       freeFeatures: [
         "Email notifications every 2 hours",
-        "Only when appointments are available",
-        "Free forever"
+        // "Only when appointments are available",
+        "24/7 monitoring",
       ],
       paidFeatures: [
-        "$5 One-time payment",
         "Instant notifications",
+        "One-time payment",
         "Priority in the queue",
-        "Faster appointment booking guaranteed"
+        "24/7 monitoring",
       ],
       popularBadge: "POPULAR",
       guaranteedText: "Faster appointment booking guaranteed",
@@ -132,32 +135,63 @@ function HomeContent() {
       return;
     }
 
-    setLoading(true);
-    
-    try {
-      const response = await fetch('/api/submit', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ 
-          email, 
-          tier: selectedTier,
-          location: 'istanbul'  // Changed to istanbul
-        }),
-      });
-      
-      if (response.ok) {
-        setStatus('success');
-        setEmail('');
-      } else {
+    if (selectedTier === "free") {
+      setLoading(true);
+      try {
+        const response = await fetch('/api/submit', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ 
+            email, 
+            tier: 'free', // Force free tier
+            location: 'istanbul'
+          }),
+        });
+        
+        if (response.ok) {
+          setStatus('success');
+          setEmail('');
+        } else {
+          setStatus('error');
+        }
+      } catch (error) {
         setStatus('error');
+        console.log(error);
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      setStatus('error');
-      console.log(error);
-    } finally {
-      setLoading(false);
+    } else if (selectedTier === "paid") {
+      setStripeLoading(true);
+      
+      try {
+        // Create Stripe Checkout Session
+        const response = await fetch('/api/stripe-checkout', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ 
+            email,
+            location: 'istanbul'
+          }),
+        });
+        
+        const data = await response.json();
+        
+        if (data.url) {
+          // Redirect to Stripe Checkout
+          window.location.href = data.url;
+        } else {
+          setStatus('error');
+        }
+      } catch (error) {
+        setStatus('error');
+        console.log(error);
+      } finally {
+        setStripeLoading(false);
+      }
     }
   };
 
@@ -248,7 +282,7 @@ function HomeContent() {
                   >
                     <div className="text-center space-y-6 h-full flex flex-col">
                       <div className="flex-1">
-                        <h3 className="text-2xl font-bold text-gray-900">{t.freeTier}</h3>
+                        {/* <h3 className="text-2xl font-bold text-gray-900">{t.freeTier}</h3> */}
                         <div className="mt-2 flex items-baseline justify-center">
                           <span className="text-3xl font-bold text-gray-900">{t.freePrice}</span>
                         </div>
@@ -288,9 +322,9 @@ function HomeContent() {
                     
                     <div className="text-center space-y-6 h-full flex flex-col">
                       <div className="flex-1">
-                        <h3 className="text-2xl font-bold text-gray-900">{t.paidTier}</h3>
+                        {/* <h3 className="text-2xl font-bold text-gray-900">{t.paidTier}</h3> */}
                         <div className="mt-2 flex items-baseline justify-center">
-                          <span className="text-3xl font-bold text-gray-900">{t.paidPrice}</span>
+                          <span className="text-3xl font-bold text-gray-900">{t.paidTier}</span>
                         </div>
                         <p className="mt-2 text-gray-600">{t.paidDescription}</p>
                       </div>
@@ -303,7 +337,6 @@ function HomeContent() {
                           </li>
                         ))}
                       </ul>
-                      
                       <div className={`w-6 h-6 rounded-full border-2 mx-auto ${
                         selectedTier === 'paid' ? 'bg-red-500 border-red-500' : 'border-gray-300'
                       }`}></div>
@@ -339,20 +372,22 @@ function HomeContent() {
                         required
                         placeholder={t.placeholder}
                         className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all placeholder-gray-400 text-gray-900"
-                        disabled={loading || unsubscribeLoading}
+                        disabled={loading || unsubscribeLoading || stripeLoading}
                       />
                     </div>
                     
                     <button
                       type="submit"
-                      disabled={loading || unsubscribeLoading}
+                      disabled={loading || unsubscribeLoading || stripeLoading}
                       className={`w-full py-3 px-6 rounded-lg font-bold text-white transition-all shadow-lg ${
                         selectedTier === 'paid' 
                           ? 'bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800' 
                           : 'bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700'
                       } disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed`}
                     >
-                      {loading ? t.loading : `${t.button} - ${selectedTier === 'paid' ? t.paidPrice : t.freePrice}`}
+                      {loading && selectedTier === 'free' ? t.loading : 
+                       stripeLoading && selectedTier === 'paid' ? 'Redirecting to payment...' : 
+                       `${t.button} - ${selectedTier === 'paid' ? t.paidPrice : t.freePrice}`}
                     </button>
                   </div>
 
@@ -414,14 +449,7 @@ function HomeContent() {
           </div>
         </div>
       </main>
-
-      {/* Footer */}
-      <footer className="border-t border-gray-200 bg-gradient-to-r from-gray-50 to-white py-6 px-6">
-        <div className="max-w-7xl mx-auto text-center">
-          <p className="text-gray-600 text-sm">{t.copyright} @ {new Date().getFullYear()}</p>
-          <p className="text-gray-600 text-sm">E: hunterjohnst1@gmail.com</p>
-        </div>
-      </footer>
+      <Footer copyright={t.copyright} />
     </div>
   );
 }

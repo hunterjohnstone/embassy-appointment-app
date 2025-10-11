@@ -4,11 +4,14 @@
 import { NextResponse } from 'next/server';
 import { pool } from '@/lib/database';
 
+// Define valid locations
+const VALID_LOCATIONS = ['newdelhi', 'istanbul', 'cairo'];
+
 export async function POST(request: Request) {
   const client = await pool.connect();
   
   try {
-    const { email, location = 'windhoek', tier = 'free' } = await request.json();
+    const { email, location = 'unknown', tier = 'free' } = await request.json();
     
     if (!email || !email.includes('@')) {
       return NextResponse.json({ error: 'Invalid email' }, { status: 400 });
@@ -22,6 +25,8 @@ export async function POST(request: Request) {
       );
     }
 
+    const finalLocation = VALID_LOCATIONS.includes(location) ? location : 'unknown';
+
     await client.query(`
       CREATE TABLE IF NOT EXISTS emails (
         id SERIAL PRIMARY KEY,
@@ -32,19 +37,19 @@ export async function POST(request: Request) {
       );
     `);
     
-const result = await client.query(
-  `INSERT INTO emails (email, location, tier) 
-   VALUES ($1, $2, $3) 
-   ON CONFLICT (email)  -- Conflict on email unique constraint
-   DO UPDATE SET 
-     location = EXCLUDED.location,
-     tier = CASE 
-       WHEN emails.tier = 'paid' THEN 'paid'  -- Keep existing paid tier
-       ELSE EXCLUDED.tier  -- Only allow free tier changes
-     END
-   RETURNING *`,
-  [email, location, 'free']
-);
+    const result = await client.query(
+      `INSERT INTO emails (email, location, tier) 
+       VALUES ($1, $2, $3) 
+       ON CONFLICT (email)
+       DO UPDATE SET 
+         location = EXCLUDED.location,
+         tier = CASE 
+           WHEN emails.tier = 'paid' THEN 'paid'
+           ELSE EXCLUDED.tier
+         END
+       RETURNING *`,
+      [email, finalLocation, 'free'] // Use the validated location
+    );
     
     return NextResponse.json({ 
       success: true, 

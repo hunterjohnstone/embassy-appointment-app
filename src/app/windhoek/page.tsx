@@ -3,6 +3,7 @@
 import React, { Suspense, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Header from '../components/header';
+import Footer from '../components/footer';
 
 function HomeContent() {
   const searchParams = useSearchParams();
@@ -88,22 +89,22 @@ function HomeContent() {
       copyright: "German Embassy Windhoek Appointment Finder",
       
       // Tier translations
-      freeTier: "Free",
-      paidTier: "Premium",
+      freeTier: "Basic",
+      paidTier: "$4.99",
       freePrice: "Free",
-      paidPrice: "$5 one-time",
+      paidPrice: "Checkout ($4.99)",
       freeDescription: "Basic notifications",
       paidDescription: "Instant notifications",
       freeFeatures: [
         "Email notifications every 2 hours",
-        "Only when appointments are available",
-        "Free forever"
+        // "Only when appointments are available",
+        "24/7 monitoring",
       ],
       paidFeatures: [
-        "$5 One-time payment",
-        "Instant notifications",
+       "Instant notifications",
+        "One-time payment",
         "Priority in the queue",
-        "Faster appointment booking guaranteed"
+        "24/7 monitoring",
       ],
       popularBadge: "POPULAR",
       guaranteedText: "Faster appointment booking guaranteed",
@@ -442,13 +443,7 @@ const handleSubmit = async (e: React.FormEvent) => {
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="border-t border-gray-200 bg-gradient-to-r from-gray-50 to-white py-6 px-6">
-        <div className="max-w-7xl mx-auto text-center">
-          <p className="text-gray-600 text-sm">{t.copyright} @ {new Date().getFullYear()}</p>
-          <p className="text-gray-600 text-sm">E: hunterjohnst1@gmail.com</p>
-        </div>
-      </footer>
+      <Footer copyright={t.copyright} />
     </div>
   );
 }

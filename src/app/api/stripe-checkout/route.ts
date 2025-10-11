@@ -11,6 +11,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 export async function POST(request: Request) {
   try {
     const { email, location } = await request.json();
+    const origin = request.headers.get('origin') || process.env.NEXTAUTH_URL;
     
     // Create Stripe Checkout Session
     const session = await stripe.checkout.sessions.create({
@@ -21,17 +22,17 @@ export async function POST(request: Request) {
           price_data: {
             currency: 'usd',
             product_data: {
-              name: 'Premium Appointment Notifications',
+              name: 'Instant Appointment Alert',
               description: `Instant notifications for ${location} embassy appointments`,
             },
-            unit_amount: 499, // $4.99
+            unit_amount: 50,
           },
           quantity: 1,
         },
       ],
       customer_email: email,
-      success_url: `${process.env.NEXTAUTH_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.NEXTAUTH_URL}/`,
+      success_url: `${origin}/success`,
+      cancel_url: `${origin}/${location}`,
       metadata: {
         email,
         location,
@@ -40,7 +41,6 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json({ url: session.url });
-    
   } catch (error: any) {
     console.error('Stripe error:', error);
     return NextResponse.json(

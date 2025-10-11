@@ -18,6 +18,7 @@ export async function POST(request: Request) {
     const sig = request.headers.get('stripe-signature');
     const body = await request.text();
     
+    
     console.log('Webhook body length:', body.length);
     console.log('Stripe signature present:', !!sig);
     
@@ -42,6 +43,8 @@ export async function POST(request: Request) {
     if (event.type === 'checkout.session.completed') {
       const session = event.data.object;
       const email = session.customer_details?.email;
+      const location = session.metadata?.location || 'unknown'; // Get location from metadata
+
       
       console.log('🛒 Checkout session completed:', {
         sessionId: session.id,
@@ -53,6 +56,10 @@ export async function POST(request: Request) {
         console.error('❌ No email found in session');
         throw new Error('No email found in session');
       }
+      if (!location) {
+        console.error('❌ No Location found in session');
+        throw new Error('No Location found in session');      
+      }
 
       // SECURE: Upgrade to paid tier
       const result = await client.query(
@@ -60,10 +67,10 @@ export async function POST(request: Request) {
          VALUES ($1, $2, 'paid')
          ON CONFLICT (email) 
          DO UPDATE SET tier = 'paid'`,
-        [email, session.metadata?.location || 'windhoek']
+        [email, location]
       );
       
-      console.log(`✅ Upgraded ${email} to paid tier via Stripe webhook, rows affected:`, result.rowCount);
+      console.log(`✅ Upgraded ${email} to paid tier via Stripe ${location}, rows affected:`, result.rowCount);
     } else {
       console.log('ℹ️ Other event type:', event.type);
     }
